@@ -1,10 +1,14 @@
 import express from "express"
 import db from "@repo/db/client"
 const app = express();
+app.use(express.json());
 
-// Use : Updates balance change (Balance[]table) & saves transaction details in onRampTransaction[] table
+
+// Use : POST http://localhost:3003/hdfcWebhook -d {token : "1234", user_identifier : "1", amount : "100"}
+// Need : A webhook to capture the payment information from the bank.
 
 app.post("/hdfcWebhook", async(req, res) => {
+
     //TODO: Add zod validation here?
     //TODO: HDFC bank should ideally send us a secret so we know this is sent by them
 
@@ -18,13 +22,14 @@ app.post("/hdfcWebhook", async(req, res) => {
         amount: req.body.amount
     };
 
-
     try {
 
-        // We want balance updattion and onRampTransaction updation(recording the transaction)
-        // at the same time
+        // We want balance updation and onRampTransaction updation (recording the transaction) at the same time.
+        // Trnasaction helps in such case.
         await db.$transaction([
 
+
+            // Update the balance of the user
             db.balance.update({
                 where:{
                     userId : Number(paymentInformation.userId)
@@ -37,6 +42,7 @@ app.post("/hdfcWebhook", async(req, res) => {
                 }
             }),
 
+            // Update the transaction status
             db.onRampTransaction.updateMany({
                 where:{
                     token : paymentInformation.token,
