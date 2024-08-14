@@ -3,6 +3,10 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
 import { NextAuthOptions } from "next-auth";
 
+// Similar use as authmiddleware in express
+// We get the credentials(token) from the user(localstorage) and then we validate the credentials
+// If succesful then we set the session(cookie/token) and return the user object
+
 
 export const config  = {
 
@@ -18,8 +22,8 @@ export const config  = {
 			password:{label:"Password", type:"password"}
 		},
 
-		
 
+		
 
 		async authorize(credentials){
 
@@ -49,7 +53,7 @@ export const config  = {
 				}
 			}
 
-			// If the user dos not exit then the flow comes here finding a return statement
+			// If the user does not exit then the flow comes here finding a return statement
 
 			try{
 				const user = await db.user.create({

@@ -4,8 +4,11 @@ import { getServerSession } from "next-auth";
 import { config } from "../auth";
 import prisma from "@repo/db/client";
 
+
+
 // Use  : createOnRampTransaction(100, "HDFC bank")
 // Need : Records a transaction in the database and returns a message.
+// AddMoneyCard.tsx -> button click -> after redirecting to bank's payment page -> log a tansaction(default : processing) .
 
 
 
@@ -17,6 +20,7 @@ export async function createOnRampTransaction(amount : number , provider: string
     // The user id is a sensitive data , never expose direcly during passing parameters.
     // Instead fetch it from session data.
     const session = await getServerSession(config);
+    console.log(session);
     const user = session?.user;
     const userId = session?.user?.id;
 
@@ -38,6 +42,8 @@ export async function createOnRampTransaction(amount : number , provider: string
 
     // As the transation is beginning to initiate
     // Record a processing txn , and update its status later. 
+    
+    // updating onRampTransaction table with the transaction details.
     await prisma.onRampTransaction.create({
         data:{
             provider,
